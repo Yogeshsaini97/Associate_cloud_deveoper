@@ -1,0 +1,9 @@
+node_modules/
+client/dist/
+database/*.db
+database/*.db-*
+logs/*
+!logs/.gitkeep
+*.log
+.env
+
