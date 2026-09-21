@@ -1,21 +1,21 @@
 const AppError = require("../errors/AppError");
 const orderRepository = require("../repositories/order.repository");
 
-const getAllOrders = () => {
-    return orderRepository.findAll();
+const getAllOrders = async () => {
+    return await orderRepository.findAll();
 };
 
-const getOrderById = (id) => {
-    const order = orderRepository.findById(id);
+const getOrderById = async (id) => {
+    const order = await orderRepository.findById(id);
 
     if (!order) {
-        throw new AppError("Order not found",404);
+        throw new AppError("Order not found", 404);
     }
 
     return order;
 };
 
-const createOrder = (orderData) => {
+const createOrder = async (orderData) => {
 
     const {
         customerId,
@@ -25,41 +25,45 @@ const createOrder = (orderData) => {
 
     if (!customerId || !productId || !quantity) {
         throw new AppError(
-            "customerId, productId and quantity are required",400
+            "customerId, productId and quantity are required",
+            400
         );
     }
 
     if (quantity <= 0) {
-        throw new AppError("Quantity must be greater than zero",400);
+        throw new AppError(
+            "Quantity must be greater than zero",
+            400
+        );
     }
 
     const order = {
-        id: Date.now(),
         customerId,
         productId,
         quantity,
-        status: "CREATED",
-        createdAt: new Date().toISOString()
+        status: "CREATED"
     };
 
-    return orderRepository.create(order);
+    return await orderRepository.create(order);
 };
 
-const updateOrder = (id, data) => {
-    const order = orderRepository.update(id, data);
+const updateOrder = async (id, data) => {
+
+    const order = await orderRepository.update(id, data);
 
     if (!order) {
-        throw new AppError("Order not found",404);
+        throw new AppError("Order not found", 404);
     }
 
     return order;
 };
 
-const deleteOrder = (id) => {
-    const deleted = orderRepository.remove(id);
+const deleteOrder = async (id) => {
+
+    const deleted = await orderRepository.remove(id);
 
     if (!deleted) {
-        throw new AppError("Order not found",404);
+        throw new AppError("Order not found", 404);
     }
 };
 

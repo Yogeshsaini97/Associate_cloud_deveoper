@@ -1,47 +1,62 @@
 const orderService = require("../services/order.service");
 
-const getOrders = (req, res) => {
+const getOrders = async (req, res, next) => {
+    try {
+        const orders = await orderService.getAllOrders();
 
-    const orders = orderService.getAllOrders();
-
-    res.status(200).json(orders);
+        res.status(200).json(orders);
+    } catch (error) {
+        next(error);
+    }
 };
 
-const getOrder = (req, res) => {
+const getOrder = async (req, res, next) => {
+    try {
+        const id = Number(req.params.id);
 
-    const id = Number(req.params.id);
+        const order = await orderService.getOrderById(id);
 
-    const order = orderService.getOrderById(id);
-
-    res.status(200).json(order);
+        res.status(200).json(order);
+    } catch (error) {
+        next(error);
+    }
 };
 
-const createOrder = (req, res) => {
+const createOrder = async (req, res, next) => {
+    try {
+        const order = await orderService.createOrder(req.body);
 
-    const order = orderService.createOrder(req.body);
-
-    res.status(201).json(order);
+        res.status(201).json(order);
+    } catch (error) {
+        next(error);
+    }
 };
 
-const updateOrder = (req, res) => {
+const updateOrder = async (req, res, next) => {
+    try {
+        const id = Number(req.params.id);
 
-    const id = Number(req.params.id);
+        const order = await orderService.updateOrder(
+            id,
+            req.body
+        );
 
-    const order = orderService.updateOrder(
-        id,
-        req.body
-    );
-
-    res.status(200).json(order);
+        res.status(200).json(order);
+    } catch (error) {
+        next(error);
+    }
 };
 
-const deleteOrder = (req, res) => {
+const deleteOrder = async (req, res, next) => {
+    try {
+        const id = Number(req.params.id);
 
-    const id = Number(req.params.id);
+        await orderService.deleteOrder(id);
 
-    orderService.deleteOrder(id);
-
-    res.status(204).send();
+        res.status(204).send();
+    } catch (error) {
+        next(error);
+    }
 };
 
 module.exports = {

@@ -1,43 +1,95 @@
-let orders = [];
+const pool = require("../config/database");
 
-const findAll = () => {
-    return orders;
+const findAll = async () => {
+    const [rows] = await pool.query(
+        "SELECT * FROM orders ORDER BY id DESC"
+    );
+
+    return rows;
 };
 
-const findById = (id) => {
-    return orders.find(order => order.id === id);
+const findById = async (id) => {
+    const [rows] = await pool.query(
+        "SELECT * FROM orders WHERE id = ?",
+        [id]
+    );
+
+    return rows[0] || null;
 };
 
-const create = (order) => {
-    orders.push(order);
-    return order;
+const create = async (order) => {
+    const [result] = await pool.query(
+        `INSERT INTO orders
+        (customer_id, product_id, quantity, status)
+        VALUES (?, ?, ?, ?)`,
+        [
+            order.customerId,
+            order.productId,
+            order.quantity,
+            order.status
+        ]
+    );
+
+    return {
+        id: result.insertId,
+        customerId: order.customerId,
+        productId: order.productId,
+        quantity: order.quantity,
+        status: order.status
+    };
 };
 
-const update = (id, updatedData) => {
-    const index = orders.findIndex(order => order.id === id);
+const update = async (id, updatedData) => {
+    const fields = [];
+    const values = [];
 
-    if (index === -1) {
+    if (updatedData.customerId !== undefined) {
+        fields.push("customer_id = ?");
+        values.push(updatedData.customerId);
+    }
+
+    if (updatedData.productId !== undefined) {
+        fields.push("product_id = ?");
+        values.push(updatedData.productId);
+    }
+
+    if (updatedData.quantity !== undefined) {
+        fields.push("quantity = ?");
+        values.push(updatedData.quantity);
+    }
+
+    if (updatedData.status !== undefined) {
+        fields.push("status = ?");
+        values.push(updatedData.status);
+    }
+
+    if (fields.length === 0) {
+        return findById(id);
+    }
+
+    values.push(id);
+
+    const [result] = await pool.query(
+        `UPDATE orders
+         SET ${fields.join(", ")}
+         WHERE id = ?`,
+        values
+    );
+
+    if (result.affectedRows === 0) {
         return null;
     }
 
-    orders[index] = {
-        ...orders[index],
-        ...updatedData
-    };
-
-    return orders[index];
+    return findById(id);
 };
 
-const remove = (id) => {
-    const index = orders.findIndex(order => order.id === id);
+const remove = async (id) => {
+    const [result] = await pool.query(
+        "DELETE FROM orders WHERE id = ?",
+        [id]
+    );
 
-    if (index === -1) {
-        return false;
-    }
-
-    orders.splice(index, 1);
-
-    return true;
+    return result.affectedRows > 0;
 };
 
 module.exports = {
