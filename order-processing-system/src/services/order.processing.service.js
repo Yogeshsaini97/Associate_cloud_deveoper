@@ -2,68 +2,69 @@ const delay = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-const processOrder = async (orderData) => {
+const processOrder = async (orderData, requestId) => {
 
     console.log("=================================");
-    console.log("ORDER PROCESSING STARTED");
+    console.log(`[${requestId}] ORDER PROCESSING STARTED`);
     console.log("=================================");
 
-    console.time("TOTAL ORDER PROCESSING");
+    console.time(`TOTAL ORDER PROCESSING ${requestId}`);
 
     // STEP 1
-    console.log("1. Validating order...");
-    console.time("Validation");
+    console.log(`[${requestId}] 1. Validating order...`);
+    console.time(`Validation ${requestId}`);
 
     await delay(1000);
 
-    console.timeEnd("Validation");
-    console.log("Validation completed");
+    console.timeEnd(`Validation ${requestId}`);
+    console.log(`[${requestId}] Validation completed`);
 
     // STEP 2
-    console.log("2. Creating order in database...");
-    console.time("Database");
+    console.log(`[${requestId}] 2. Creating order in database...`);
+    console.time(`Database ${requestId}`);
 
     await delay(2000);
 
-    console.timeEnd("Database");
-    console.log("Order created");
+    console.timeEnd(`Database ${requestId}`);
+    console.log(`[${requestId}] Order created`);
 
     // STEP 3
-    console.log("3. Processing payment...");
-    console.time("Payment");
+    console.log(`[${requestId}] 3. Processing payment...`);
+    console.time(`Payment ${requestId}`);
 
     await delay(3000);
 
-    console.timeEnd("Payment");
-    console.log("Payment completed");
+    console.timeEnd(`Payment ${requestId}`);
+    console.log(`[${requestId}] Payment completed`);
 
     // STEP 4
-    console.log("4. Checking inventory...");
-    console.time("Inventory");
+    console.log(`[${requestId}] 4. Checking inventory...`);
+    console.time(`Inventory ${requestId}`);
 
     await delay(2000);
 
-    console.timeEnd("Inventory");
-    console.log("Inventory available");
+    console.timeEnd(`Inventory ${requestId}`);
+    console.log(`[${requestId}] Inventory available`);
 
     // STEP 5
-    console.log("5. Sending email...");
-    console.time("Email");
+    console.log(`[${requestId}] 5. Sending email...`);
+    console.time(`Email ${requestId}`);
 
     await delay(2000);
 
-    console.timeEnd("Email");
-    console.log("Email sent");
+    console.timeEnd(`Email ${requestId}`);
+    console.log(`[${requestId}] Email sent`);
 
-    console.timeEnd("TOTAL ORDER PROCESSING");
+    console.timeEnd(`TOTAL ORDER PROCESSING ${requestId}`);
 
     console.log("=================================");
-    console.log("ORDER PROCESSING COMPLETED");
+    console.log(`[${requestId}] ORDER PROCESSING COMPLETED`);
     console.log("=================================");
 
     return {
         message: "Order processed successfully",
-        order: orderData
+        order: orderData,
+        requestId
     };
 };
 
