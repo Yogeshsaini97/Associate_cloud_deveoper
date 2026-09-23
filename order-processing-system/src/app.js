@@ -2,6 +2,9 @@ const express = require("express");
 
 const orderRoutes = require("./routes/order.routes");
 const errorHandler = require("./middleware/error.middleware");
+const orderProcessingRoutes = require(
+    "./routes/order.processing.routes"
+);
 
 const app = express();
 
@@ -15,6 +18,8 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/orders", orderRoutes);
+
+app.use("/orders",orderProcessingRoutes);
 
 // Error middleware MUST come after routes
 app.use(errorHandler);
