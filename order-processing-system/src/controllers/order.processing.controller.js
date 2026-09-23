@@ -2,35 +2,48 @@ const orderProcessingService = require(
     "../services/order.processing.service"
 );
 
+const {
+    colorRequestId
+} = require("../utils/requestColor");
+
 let requestCounter = 0;
 
 const processOrder = async (req, res, next) => {
 
-    const requestId = `REQUEST_${++requestCounter}`;
+    const requestNumber = ++requestCounter;
+    const requestId = `REQUEST_${requestNumber}`;
+
+    const coloredRequestId =
+        colorRequestId(requestId, requestNumber);
 
     try {
 
-        console.log(`[${requestId}] API REQUEST STARTED`);
+        console.log(`${coloredRequestId} API REQUEST STARTED`);
 
         console.time(`API REQUEST ${requestId}`);
 
-        const result = await orderProcessingService.processOrder(
-            req.body,
-            requestId
-        );
+        const result =
+            await orderProcessingService.processOrder(
+                req.body,
+                requestId,
+                requestNumber
+            );
 
         console.timeEnd(`API REQUEST ${requestId}`);
 
-        console.log(`[${requestId}] API REQUEST COMPLETED`);
+        console.log(
+            `${coloredRequestId} API REQUEST COMPLETED`
+        );
 
         res.status(200).json(result);
 
     } catch (error) {
 
-        console.error(`[${requestId}] API REQUEST FAILED`);
+        console.error(
+            `${coloredRequestId} API REQUEST FAILED`
+        );
 
         next(error);
-
     }
 };
 
