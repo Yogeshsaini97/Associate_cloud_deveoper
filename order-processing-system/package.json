@@ -9,6 +9,7 @@
     "test": "mocha"
   },
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.1139.0",
     "express": "^5.1.0",
     "mysql2": "^3.24.2"
   },
