@@ -1,46 +1,125 @@
-const orderProcessingService = require(
-    "../services/order.processing.service"
-);
-
-const {
-    colorRequestId
-} = require("../utils/requestColor");
+const sqsService = require("../services/sqs.service");
 
 let requestCounter = 0;
 
 const processOrder = async (req, res, next) => {
 
-    const requestNumber = ++requestCounter;
-    const requestId = `REQUEST_${requestNumber}`;
-
-    const coloredRequestId =
-        colorRequestId(requestId, requestNumber);
+    const requestId = `REQUEST_${++requestCounter}`;
 
     try {
 
-        console.log(`${coloredRequestId} API REQUEST STARTED`);
-
-        console.time(`API REQUEST ${requestId}`);
-
-        const result =
-            await orderProcessingService.processOrder(
-                req.body,
-                requestId,
-                requestNumber
-            );
-
-        console.timeEnd(`API REQUEST ${requestId}`);
+        console.log("==============================================");
+        console.log(`[${requestId}] ORDER REQUEST RECEIVED`);
+        console.log("==============================================");
 
         console.log(
-            `${coloredRequestId} API REQUEST COMPLETED`
+            `[${requestId}] Request body:`,
+            JSON.stringify(req.body)
         );
 
-        res.status(200).json(result);
+        // --------------------------------
+        // STEP 1 - Validate request
+        // --------------------------------
+
+        console.log(`[${requestId}] STEP 1: Validating order...`);
+
+        const {
+            customerId,
+            productId,
+            quantity
+        } = req.body;
+
+        if (!customerId || !productId || !quantity) {
+
+            console.log(
+                `[${requestId}] VALIDATION FAILED`
+            );
+
+            return res.status(400).json({
+                message: "customerId, productId and quantity are required"
+            });
+        }
+
+        if (quantity <= 0) {
+
+            console.log(
+                `[${requestId}] VALIDATION FAILED: Invalid quantity`
+            );
+
+            return res.status(400).json({
+                message: "Quantity must be greater than zero"
+            });
+        }
+
+        console.log(
+            `[${requestId}] STEP 1: Validation successful`
+        );
+
+        // --------------------------------
+        // STEP 2 - Create SQS message
+        // --------------------------------
+
+        console.log(
+            `[${requestId}] STEP 2: Creating SQS message...`
+        );
+
+        const message = {
+            customerId,
+            productId,
+            quantity
+        };
+
+        console.log(
+            `[${requestId}] SQS message created:`,
+            JSON.stringify(message)
+        );
+
+        // --------------------------------
+        // STEP 3 - Send to SQS
+        // --------------------------------
+
+        console.log(
+            `[${requestId}] STEP 3: Sending order to SQS...`
+        );
+
+        const response = await sqsService.sendMessage(
+            message,
+            requestId
+        );
+
+        console.log(
+            `[${requestId}] STEP 3: SQS accepted the message`
+        );
+
+        // --------------------------------
+        // STEP 4 - Send HTTP response
+        // --------------------------------
+
+        console.log(
+            `[${requestId}] STEP 4: Sending 202 response to client`
+        );
+
+        res.status(202).json({
+            message: "Order accepted for processing",
+            status: "PROCESSING",
+            messageId: response.MessageId
+        });
+
+        console.log(
+            `[${requestId}] ORDER REQUEST COMPLETED`
+        );
+
+        console.log("==============================================");
 
     } catch (error) {
 
         console.error(
-            `${coloredRequestId} API REQUEST FAILED`
+            `[${requestId}] ORDER REQUEST FAILED`
+        );
+
+        console.error(
+            `[${requestId}] Error:`,
+            error.message
         );
 
         next(error);
