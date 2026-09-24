@@ -20,12 +20,18 @@ const createOrder = async (orderData) => {
     const {
         customerId,
         productId,
-        quantity
+        quantity,
+        customerEmail
     } = orderData;
 
-    if (!customerId || !productId || !quantity) {
+    if (
+        !customerId ||
+        !productId ||
+        !quantity ||
+        !customerEmail
+    ) {
         throw new AppError(
-            "customerId, productId and quantity are required",
+            "customerId, productId, quantity and customerEmail are required",
             400
         );
     }
@@ -41,7 +47,8 @@ const createOrder = async (orderData) => {
         customerId,
         productId,
         quantity,
-        status: "CREATED"
+        customerEmail,
+        status: "PROCESSING"
     };
 
     return await orderRepository.create(order);

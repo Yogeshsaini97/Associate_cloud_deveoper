@@ -1,32 +1,58 @@
 const pool = require("../config/database");
 
 const findAll = async () => {
+
     const [rows] = await pool.query(
         "SELECT * FROM orders ORDER BY id DESC"
     );
 
-    return rows;
+    return rows.map(order => ({
+        id: order.id,
+        customerId: order.customer_id,
+        productId: order.product_id,
+        quantity: order.quantity,
+        status: order.status,
+        customerEmail: order.customer_email,
+        createdAt: order.created_at
+    }));
 };
 
 const findById = async (id) => {
+
     const [rows] = await pool.query(
         "SELECT * FROM orders WHERE id = ?",
         [id]
     );
 
-    return rows[0] || null;
+    if (!rows[0]) {
+        return null;
+    }
+
+    const order = rows[0];
+
+    return {
+        id: order.id,
+        customerId: order.customer_id,
+        productId: order.product_id,
+        quantity: order.quantity,
+        status: order.status,
+        customerEmail: order.customer_email,
+        createdAt: order.created_at
+    };
 };
 
 const create = async (order) => {
+
     const [result] = await pool.query(
         `INSERT INTO orders
-        (customer_id, product_id, quantity, status)
-        VALUES (?, ?, ?, ?)`,
+        (customer_id, product_id, quantity, status, customer_email)
+        VALUES (?, ?, ?, ?, ?)`,
         [
             order.customerId,
             order.productId,
             order.quantity,
-            order.status
+            order.status,
+            order.customerEmail
         ]
     );
 
@@ -35,7 +61,8 @@ const create = async (order) => {
         customerId: order.customerId,
         productId: order.productId,
         quantity: order.quantity,
-        status: order.status
+        status: order.status,
+        customerEmail: order.customerEmail
     };
 };
 

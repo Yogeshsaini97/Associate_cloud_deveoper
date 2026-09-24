@@ -11,7 +11,8 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.1139.0",
     "express": "^5.1.0",
-    "mysql2": "^3.24.2"
+    "mysql2": "^3.24.2",
+    "nodemailer": "^10.0.10"
   },
   "devDependencies": {
     "chai": "^6.2.2",

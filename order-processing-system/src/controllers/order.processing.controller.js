@@ -1,3 +1,4 @@
+const orderService = require("../services/order.service");
 const sqsService = require("../services/sqs.service");
 
 let requestCounter = 0;
@@ -18,59 +19,33 @@ const processOrder = async (req, res, next) => {
         );
 
         // --------------------------------
-        // STEP 1 - Validate request
+        // STEP 1 - Validate + create order
         // --------------------------------
 
-        console.log(`[${requestId}] STEP 1: Validating order...`);
+        console.log(
+            `[${requestId}] STEP 1: Creating order in RDS...`
+        );
 
-        const {
-            customerId,
-            productId,
-            quantity
-        } = req.body;
-
-        if (!customerId || !productId || !quantity) {
-
-            console.log(
-                `[${requestId}] VALIDATION FAILED`
-            );
-
-            return res.status(400).json({
-                message: "customerId, productId and quantity are required"
-            });
-        }
-
-        if (quantity <= 0) {
-
-            console.log(
-                `[${requestId}] VALIDATION FAILED: Invalid quantity`
-            );
-
-            return res.status(400).json({
-                message: "Quantity must be greater than zero"
-            });
-        }
+        const order = await orderService.createOrder(req.body);
 
         console.log(
-            `[${requestId}] STEP 1: Validation successful`
+            `[${requestId}] Order created`
+        );
+
+        console.log(
+            `[${requestId}] Order ID: ${order.id}`
         );
 
         // --------------------------------
         // STEP 2 - Create SQS message
         // --------------------------------
 
-        console.log(
-            `[${requestId}] STEP 2: Creating SQS message...`
-        );
-
         const message = {
-            customerId,
-            productId,
-            quantity
+            orderId: order.id
         };
 
         console.log(
-            `[${requestId}] SQS message created:`,
+            `[${requestId}] STEP 2: SQS message:`,
             JSON.stringify(message)
         );
 
@@ -88,20 +63,25 @@ const processOrder = async (req, res, next) => {
         );
 
         console.log(
-            `[${requestId}] STEP 3: SQS accepted the message`
+            `[${requestId}] STEP 3: SQS accepted message`
+        );
+
+        console.log(
+            `[${requestId}] SQS Message ID: ${response.MessageId}`
         );
 
         // --------------------------------
-        // STEP 4 - Send HTTP response
+        // STEP 4 - Respond to client
         // --------------------------------
 
         console.log(
-            `[${requestId}] STEP 4: Sending 202 response to client`
+            `[${requestId}] STEP 4: Sending 202 response`
         );
 
         res.status(202).json({
-            message: "Order accepted for processing",
+            orderId: order.id,
             status: "PROCESSING",
+            message: "Order accepted for processing",
             messageId: response.MessageId
         });
 
