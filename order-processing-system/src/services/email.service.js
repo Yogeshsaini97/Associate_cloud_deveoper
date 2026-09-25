@@ -7,8 +7,8 @@ const transporter = nodemailer.createTransport({
     secure: false,
 
     auth: {
-        user: "baedfa001@smtp-brevo.com",
-        pass: "xsmtpsib-ff2216b7b9a7c29a5883e81bd18d1f6459f1977e89f37275acf12cd0d3aeae24-ToExyk1JSh2zJag"
+        user: "baedfa001@smtp-breom",
+        pass: "xsmtpsib-ff2216b7b9a7c29a5883e81bd18d1f6459f1977e89f37275"
     }
 });
 
